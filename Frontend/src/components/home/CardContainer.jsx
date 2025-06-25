@@ -7,8 +7,8 @@ const CardContainer = ({ product }) => {
 
       <div className="container px-4 px-lg-5  mt-5">
         <div className="row justify-content-center">
-          {product.map((product) => (
-            <HomeCard key={product.id} product={product} />
+          {product.map((Products) => (
+            <HomeCard key={Products.id} product={Products} />
           ))}
         </div>
       </div>
