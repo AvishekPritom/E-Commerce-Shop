@@ -8,7 +8,7 @@ const HomePage = () => {
 
   useEffect(function () {
     api
-      .get("product")
+      .get("products")
       .then((res) => {
         console.log(res.data);
         setProducts(res.data);
