@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 import api from "../../api";
 
 const HomePage = () => {
-  const [product, setProducts] = useState([]);
+  const [products, setProducts] = useState([]);
 
-  useEffect(function () {
+  useEffect(() => {
     api
       .get("products")
       .then((res) => {
-        console.log(res.data);
+        // Adjust this line if your API response structure is different
         setProducts(res.data);
       })
       .catch((err) => {
@@ -21,7 +21,7 @@ const HomePage = () => {
   return (
     <>
       <Header />
-      <CardContainer product={product} />
+      <CardContainer product={products} />
     </>
   );
 };
