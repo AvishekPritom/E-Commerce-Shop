@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.text import slugify
+from django.conf import settings 
 
-# Create your models here.
 class Product(models.Model):
     CATEGORY = (("Electronics","ELCETRONICS"),
                 ("Groceries","GROCERIES"),
@@ -14,7 +14,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10,decimal_places=2)
     category= models.CharField(max_length=15,choices=CATEGORY,blank=True,null=True)
 
-    def __str__(self):
+    def str(self):
         return self.name
     
     def save(self,*args,**kwargs):
@@ -26,3 +26,18 @@ class Product(models.Model):
                 unique_slug=f'{self.slug}-{counter}'
             self.slug=unique_slug
         super().save(*args,**kwargs)
+
+class Cart(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    products = models.ManyToManyField(Product, through='CartItem')
+
+    def str(self):
+        return f"Cart for {self.user.username}"
+
+class CartItem(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+    def str(self):
+        return f"{self.quantity} of {self.product.name} in {self.cart}"
