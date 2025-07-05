@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import api from "../../api";
+import { useEffect, useState } from "react";
 import ProductPagePlaceHolder from "./ProductPagePlaceHolder";
 import RelatedProducts from "./RelatedProducts";
 import { useParams } from "react-router-dom";
 import { BASE_URL } from "../../api";
-const ProductPage = ({setNumCartItems}) => {
+import { toast } from "react-toastify";
+const ProductPage = ({ setNumCartItems }) => {
   const { slug } = useParams();
   const [product, setProduct] = useState({});
   const [similarProducts, setSimilarProducts] = useState([]);
@@ -32,11 +34,13 @@ const ProductPage = ({setNumCartItems}) => {
 
   const newItem = { cart_code: cart_code, product_id: product.id };
   function add_item() {
-    api.post("add_item/", newItem)
+    api
+      .post("add_item/", newItem)
       .then((res) => {
         console.log(res.data);
         setInCart(true);
-        setNumCartItems(curr => curr + 1)
+        toast.success("Product added to cart");
+        setNumCartItems((curr) => curr + 1);
       })
 
       .catch((err) => {
