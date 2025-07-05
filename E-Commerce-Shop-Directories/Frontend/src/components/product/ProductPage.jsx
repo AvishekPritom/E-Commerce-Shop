@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import api from "../../api";
+import { useEffect, useState } from "react";
 import ProductPagePlaceHolder from "./ProductPagePlaceHolder";
 import RelatedProducts from "./RelatedProducts";
 import { useParams } from "react-router-dom";
 import { BASE_URL } from "../../api";
-import api from "../../api";
-const ProductPage = ({setNumCartItems}) => {
+import { toast } from "react-toastify";
+const ProductPage = ({ setNumCartItems }) => {
   const { slug } = useParams();
   const [product, setProduct] = useState({});
   const [similarProducts, setSimilarProducts] = useState([]);
@@ -17,8 +18,7 @@ const ProductPage = ({setNumCartItems}) => {
       if (product.id) {
         api
           .get(
-            api.get(`products_in_cart?cart_code=${cart_code}&product_id=${product.id}`)
-
+            `product_in_cart?tcart_code=${cart_code}&product_id=${product.id}`
           )
           .then((res) => {
             console.log(res.data);
@@ -32,25 +32,21 @@ const ProductPage = ({setNumCartItems}) => {
     [cart_code, product.id]
   );
 
-  function add_item() {
   const newItem = { cart_code: cart_code, product_id: product.id };
+  function add_item() {
+    api
+      .post("add_item/", newItem)
+      .then((res) => {
+        console.log(res.data);
+        setInCart(true);
+        toast.success("Product added to cart");
+        setNumCartItems((curr) => curr + 1);
+      })
 
-  if (!newItem.cart_code || !newItem.product_id) {
-    console.warn("Missing cart_code or product_id:", newItem);
-    return;
+      .catch((err) => {
+        console.log(err.message);
+      });
   }
-
-  api.post("add_item/", newItem)
-    .then((res) => {
-      console.log(res.data);
-      setInCart(true);
-      setNumCartItems(curr => curr + 1);
-    })
-    .catch((err) => {
-      console.log("Add to cart error:", err.response?.data || err.message);
-    });
-}
-
 
   useEffect(
     function () {
