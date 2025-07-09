@@ -1,64 +1,46 @@
 from rest_framework import serializers
-from.models import Product,Cart,CartItem
 
-class ProductSerializer(serializers.ModelSerializer):
-    class Meta :
-        model= Product
-        fields=["id","name","slug","image","description","category","price"]
+class ProductSerializer(serializers.Serializer):
+    id = serializers.CharField(source='_id', read_only=True)
+    name = serializers.CharField()
+    slug = serializers.CharField()
+    image = serializers.CharField(allow_blank=True, required=False)
+    description = serializers.CharField(allow_blank=True, required=False)
+    category = serializers.CharField()
+    price = serializers.FloatField()
 
+class DetailProductSerializer(ProductSerializer):
+    similar_products = serializers.ListField(child=ProductSerializer(), read_only=True)
 
-class DetailProductSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = ["id", "name", "slug", "image", "description", "similar_products"]
-
-def get_similar_products(self, product):
-    products = Product.objects.filter(category=product.category).exclude(id=product.id)
-    serializer = ProductSerializer(products, many=True)
-    return serializer.data 
-
-class CartItemSerializer(serializers.ModelSerializer):
-    product = DetailProductSerializer(read_only=True)
+class CartItemSerializer(serializers.Serializer):
+    id = serializers.CharField(source='_id', read_only=True)
+    cart_code = serializers.CharField()
+    product = DetailProductSerializer()
+    quantity = serializers.IntegerField()
     total = serializers.SerializerMethodField()
-    class Meta:
-        model = CartItem
-        fields = ["id", "cart", "product","total"]
-    
-    def get_total(self, cart_item):
-        price= cart_item.product.price * cart_item.quantity
-        return price
 
+    def get_total(self, obj):
+        return obj["product"]["price"] * obj["quantity"]
 
-
-
-class CartSerializer(serializers.ModelSerializer):
-    items = CartItemSerializer(many=True, read_only=True)
+class CartSerializer(serializers.Serializer):
+    id = serializers.CharField(source='_id', read_only=True)
+    cart_code = serializers.CharField()
+    items = CartItemSerializer(many=True)
     sum_total = serializers.SerializerMethodField()
     num_of_items = serializers.SerializerMethodField()
-    class Meta:
-        model = Cart
-        fields = ["id", "cart_code","items","sum_total","num_of_items","created_at", "modified_at"]
+    created_at = serializers.DateTimeField()
+    modified_at = serializers.DateTimeField()
 
-    def get_sum_total(self, cart):
-        items = cart.items.all()
-        total = sum([item.product.price * item.quantity for item in items])
-        return total
-    
-    def get_num_of_items(self, cart):
-        items= cart.items.all()
-        total = sum([item.quantity for item in items])
-        return total
+    def get_sum_total(self, obj):
+        return sum(item["product"]["price"] * item["quantity"] for item in obj["items"])
 
+    def get_num_of_items(self, obj):
+        return sum(item["quantity"] for item in obj["items"])
 
-
-class SimpleCartSerializer(serializers.ModelSerializer):
+class SimpleCartSerializer(serializers.Serializer):
+    id = serializers.CharField(source='_id', read_only=True)
+    cart_code = serializers.CharField()
     num_of_items = serializers.SerializerMethodField()
-    class Meta:
-        model = Cart
-        fields = ["id", "cart_code","num_of_items"]
 
-    def get_num_of_items(self, cart):
-        num_of_items = sum([item.quantity for item in cart.items.all()])
-        return num_of_items
-    
-
+    def get_num_of_items(self, obj):
+        return sum(item["quantity"] for item in obj.get("items", []))

@@ -1,47 +1,113 @@
-from django.db import models
-from django.utils.text import slugify
-from django.conf import settings
+from bson import ObjectId
+from slugify import slugify
+from datetime import datetime
+from db_connection import db
 
-# Create your models here.
-class Product(models.Model):
-    CATEGORY = (("Electronics","ELCETRONICS"),
-                ("Groceries","GROCERIES"),
-                ("Clothings","CLOTHINGS")
-                )
-    name=models.CharField(max_length=100)
-    slug=models.SlugField(blank=True,null=True)
-    image = models.ImageField(upload_to="img")
-    description=models.TextField(blank=True,null=True)
-    price = models.DecimalField(max_digits=10,decimal_places=2)
-    category= models.CharField(max_length=15,choices=CATEGORY,blank=True,null=True)
 
-    def __str__(self):
-        return self.name
-    
-    def save(self,*args,**kwargs):
-        if not self.slug:
-            self.slug=slugify(self.name)
-            unique_slug =self.slug
-            counter=1
-            if Product.objects.filter(slug=unique_slug).exists():
-                unique_slug=f'{self.slug}-{counter}'
-            self.slug=unique_slug
-        super().save(*args,**kwargs)
+# PRODUCTS
 
-class Cart(models.Model):
-    cart_code = models.CharField(max_length=100,unique=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
-    paid = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True,blank=True, null=True)
-    modified_at = models.DateTimeField(auto_now=True,blank=True, null=True)
+def generate_unique_slug(name):
+    base_slug = slugify(name)
+    slug = base_slug
+    count = 1
+    while db.product.find_one({"slug": slug}):
+        slug = f"{base_slug}-{count}"
+        count += 1
+    return slug
 
-    def __str__(self):
-        return self.cart_code
-    
-class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
+def create_product(data):
+    # data = dict with keys: name, image, description, category, price
+    slug = generate_unique_slug(data["name"])
+    product = {
+        "name": data["name"],
+        "slug": slug,
+        "image": data.get("image", ""),
+        "description": data.get("description", ""),
+        "category": data.get("category", ""),
+        "price": float(data["price"])
+    }
+    result = db.product.insert_one(product)
+    product["_id"] = str(result.inserted_id)
+    return product
 
-    def __str__(self):
-        return f"{self.quantity} x {self.product.name} in cart {self.cart.id}"
+def get_all_products():
+    products = list(db.product.find())
+    for p in products:
+        p["_id"] = str(p["_id"])
+    return products
+
+def get_product_by_slug(slug):
+    product = db.product.find_one({"slug": slug})
+    if product:
+        product["_id"] = str(product["_id"])
+    return product
+
+
+# CARTS
+
+def get_cart(cart_code):
+    return db.cart.find_one({"cart_code": cart_code})
+
+def create_cart(cart_code, user_id=None):
+    cart = {
+        "cart_code": cart_code,
+        "user_id": user_id,
+        "paid": False,
+        "created_at": datetime.utcnow(),
+        "modified_at": datetime.utcnow()
+    }
+    result = db.cart.insert_one(cart)
+    cart["_id"] = str(result.inserted_id)
+    return cart
+
+def update_cart_modified_at(cart_code):
+    db.cart.update_one(
+        {"cart_code": cart_code},
+        {"$set": {"modified_at": datetime.utcnow()}}
+    )
+
+
+# CART ITEMS
+
+def get_cart_item(cart_code, product_id):
+    return db.cart_item.find_one({"cart_code": cart_code, "product_id": ObjectId(product_id)})
+
+def add_or_update_cart_item(cart_code, product_id, quantity=1):
+    existing_item = get_cart_item(cart_code, product_id)
+    if existing_item:
+        new_qty = existing_item.get("quantity", 1) + quantity
+        db.cart_item.update_one(
+            {"_id": existing_item["_id"]},
+            {"$set": {"quantity": new_qty}}
+        )
+        existing_item["quantity"] = new_qty
+        existing_item["_id"] = str(existing_item["_id"])
+        return existing_item
+    else:
+        cart_item = {
+            "cart_code": cart_code,
+            "product_id": ObjectId(product_id),
+            "quantity": quantity
+        }
+        result = db.cart_item.insert_one(cart_item)
+        cart_item["_id"] = str(result.inserted_id)
+        return cart_item
+
+def update_cart_item_quantity(item_id, quantity):
+    result = db.cart_item.update_one(
+        {"_id": ObjectId(item_id)},
+        {"$set": {"quantity": quantity}}
+    )
+    return result.matched_count > 0
+
+def get_cart_items(cart_code):
+    items = list(db.cart_item.find({"cart_code": cart_code}))
+    for item in items:
+        item["_id"] = str(item["_id"])
+        # Add product details
+        product = db.product.find_one({"_id": item["product_id"]})
+        if product:
+            product["_id"] = str(product["_id"])
+            item["product"] = product
+        item["product_id"] = str(item["product_id"])
+    return items
