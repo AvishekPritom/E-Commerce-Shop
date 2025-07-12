@@ -133,3 +133,4 @@ const CartItem = ({ setNumCartItems }) => {
 };
 
 export default CartItem;
+
