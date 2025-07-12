@@ -1,11 +1,10 @@
-import api from "../../api";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ProductPagePlaceHolder from "./ProductPagePlaceHolder";
 import RelatedProducts from "./RelatedProducts";
 import { useParams } from "react-router-dom";
 import { BASE_URL } from "../../api";
-import { toast } from "react-toastify";
-const ProductPage = ({ setNumCartItems }) => {
+import api from "../../api";
+const ProductPage = ({setNumCartItems}) => {
   const { slug } = useParams();
   const [product, setProduct] = useState({});
   const [similarProducts, setSimilarProducts] = useState([]);
@@ -15,11 +14,9 @@ const ProductPage = ({ setNumCartItems }) => {
 
   useEffect(
     function () {
-      if (product.id) {
+      if (product._id) {
         api
-          .get(
-            `product_in_cart?tcart_code=${cart_code}&product_id=${product.id}`
-          )
+          .get(`products_in_cart?cart_code=${cart_code}&product_id=${product._id}`)
           .then((res) => {
             console.log(res.data);
             setInCart(res.data.product_in_cart);
@@ -29,24 +26,28 @@ const ProductPage = ({ setNumCartItems }) => {
           });
       }
     },
-    [cart_code, product.id]
+    [cart_code, product._id]
   );
 
-  const newItem = { cart_code: cart_code, product_id: product.id };
   function add_item() {
-    api
-      .post("add_item/", newItem)
+    const newItem = { cart_code: cart_code, product_id: product._id };
+
+    if (!newItem.cart_code || !newItem.product_id) {
+      console.warn("Missing cart_code or product_id:", newItem);
+      return;
+    }
+
+    api.post("add_item/", newItem)
       .then((res) => {
         console.log(res.data);
         setInCart(true);
-        toast.success("Product added to cart");
-        setNumCartItems((curr) => curr + 1);
+        setNumCartItems(curr => curr + 1);
       })
-
       .catch((err) => {
-        console.log(err.message);
+        console.log("Add to cart error:", err.response?.data || err.message);
       });
   }
+
 
   useEffect(
     function () {

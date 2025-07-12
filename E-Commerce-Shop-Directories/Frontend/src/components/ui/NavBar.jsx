@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import styles from "./NavBar.module.css";
 import { NavBarLink } from "./NavBarLink";
 const NavBar = ({ numCartItems = 0 }) => {
+  // Ensure numCartItems is always a valid number
+  const safeNumCartItems = isNaN(numCartItems) ? 0 : numCartItems;
   return (
     <nav
       className={`navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3 ${styles.stickyNavbar}`}
@@ -29,7 +31,7 @@ const NavBar = ({ numCartItems = 0 }) => {
           className={`btn btn-dark ms-3 rounded-pill position-relative ${styles.responssiveCart}`}
         >
           <FaCartShopping />
-          {numCartItems == 0 || <span
+          {safeNumCartItems === 0 || <span
             className="position-absolute top-0 start-100 translate-middle badge rounded-pill"
             style={{
               fontSize: "0.85rem",
@@ -37,9 +39,8 @@ const NavBar = ({ numCartItems = 0 }) => {
               backgroundColor: "#6050DC",
             }}
           >
-            {numCartItems}
+            {safeNumCartItems}
           </span>}
-          
         </Link>
       </div>
     </nav>

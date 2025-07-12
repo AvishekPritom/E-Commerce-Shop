@@ -7,7 +7,7 @@ const CardContainer = ({ product = [] }) => {
       <div className="container px-4 px-lg-5  mt-5">
         <div className="row justify-content-center">
           {product.map((Products) => (
-            <HomeCard key={Products.id} product={Products} />
+            <HomeCard key={Products._id || Products.slug || Products.id} product={Products} />
           ))}
         </div>
       </div>
