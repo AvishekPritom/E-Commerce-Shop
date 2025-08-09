@@ -1,0 +1,231 @@
+/* Nagad Button Styling */
+.btn-nagad {
+  background: linear-gradient(135deg, #ec1c24 0%, #d41420 100%) !important;
+  border: none !important;
+  box-shadow: 0 4px 15px rgba(236, 28, 36, 0.3);
+  transition: all 0.3s ease;
+}
+
+.btn-nagad:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(236, 28, 36, 0.4);
+  background: linear-gradient(135deg, #d41420 0%, #c41119 100%) !important;
+}
+
+.btn-nagad:active {
+  transform: translateY(0);
+}
+
+.btn-nagad:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Bkash Button Styling */
+.btn-bkash {
+  background: linear-gradient(135deg, #e2136e 0%, #ca0f5f 100%) !important;
+  border: none !important;
+  box-shadow: 0 4px 15px rgba(226, 19, 110, 0.3);
+  transition: all 0.3s ease;
+}
+
+.btn-bkash:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(226, 19, 110, 0.4);
+  background: linear-gradient(135deg, #ca0f5f 0%, #b50d54 100%) !important;
+}
+
+.btn-bkash:active {
+  transform: translateY(0);
+}
+
+.btn-bkash:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Payment Card Styling */
+.payment-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.payment-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Cart Summary Card Styling */
+.cart-summary-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.cart-summary-header {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  border-radius: 12px 12px 0 0;
+}
+
+.payment-options-header {
+  background: linear-gradient(135deg, #007bff 0%, #6f42c1 100%);
+  border-radius: 12px 12px 0 0;
+}
+
+/* Loading Spinner for Payment Buttons */
+.payment-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Payment Security Badge */
+.payment-security {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 13px;
+  color: #6c757d;
+}
+
+.payment-security i {
+  color: #28a745;
+}
+
+/* Payment Summary Section */
+.payment-summary {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.payment-summary .total-amount {
+  font-size: 18px;
+  font-weight: 700;
+  color: #007bff;
+}
+
+/* Cart Empty State */
+.cart-empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6c757d;
+}
+
+.cart-empty-state i {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+/* Checkout Page Specific Styles */
+.payment-option {
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.payment-option:hover {
+  border-color: #007bff;
+  background-color: #f8f9ff;
+}
+
+.payment-option.selected {
+  border-color: #007bff;
+  background-color: #e3f2fd;
+  box-shadow: 0 2px 10px rgba(0, 123, 255, 0.2);
+}
+
+.payment-method-card {
+  width: 100%;
+  text-align: center;
+  padding: 10px;
+}
+
+.payment-method-card i {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.order-items {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.order-items::-webkit-scrollbar {
+  width: 4px;
+}
+
+.order-items::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.order-items::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.order-items::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Form Styling */
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 8px;
+}
+
+/* Place Order Button */
+.btn-success:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .btn-nagad,
+  .btn-bkash {
+    padding: 15px 20px;
+    font-size: 14px;
+  }
+  
+  .payment-card {
+    margin-bottom: 20px;
+  }
+  
+  .payment-option {
+    margin-bottom: 15px;
+  }
+  
+  .order-items {
+    max-height: 200px;
+  }
+}
+
+/* Payment Method Preview */
+.payment-method-preview {
+  transition: all 0.3s ease;
+  background: #f8f9fa;
+}
+
+.payment-method-preview:hover {
+  background: #e9ecef;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
